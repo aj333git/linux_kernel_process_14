@@ -1,0 +1,81 @@
+Built a custom Linux SLAB allocator module today.
+
+Implemented:
+- kmem_cache
+- shrinker API
+- lock-protected object tracking
+- cache-aligned kernel objects
+- reclaim under memory pressure
+
+Why this matters:
+
+Most people use malloc().
+Kernel engineers optimize allocation latency,
+cache locality,
+fragmentation,
+and reclaim behavior.
+
+That’s where SLAB comes in.
+
+ASCII view:
+
+        Userspace malloc()
+                 |
+          +------v------+
+          | kmalloc()   |
+          +------v------+
+                 |
+         +-------v--------+
+         | SLAB Allocator |
+         +-------v--------+
+                 |
+      +----------+----------+
+      | object reuse pools  |
+      | cache alignment     |
+      | reclaim/shrinker    |
+      +---------------------+
+
+Modern kernels survive because memory allocation
+is engineered — not guessed.
+
+#linux #kernel #systemsprogramming #operatingsystems
+#c #lowlevel #linuxkernel
+
+What Problem This Program Solves
+
+This module demonstrates how the Linux kernel efficiently manages frequently allocated small objects.
+
+Without slab allocators:
+
+repeated kmalloc/kfree
+fragmentation increases
+CPU cache misses increase
+allocation latency increases
+reclaim logic becomes harder
+
+This module solves:
+
+1. Fast Object Allocation
+
+Objects are pre-structured and cache-aligned.
+
+2. Reduced Fragmentation
+
+SLAB reuses object pools efficiently.
+
+3. Better CPU Cache Locality
+
+SLAB_HWCACHE_ALIGN improves access speed.
+
+4. Memory Pressure Handling
+
+Shrinker allows reclaim under low-memory conditions.
+
+5. Scalable Kernel Object Management
+
+Used in real kernel subsystems like:
+
+dentry cache
+inode cache
+networking buffers
+task structures
